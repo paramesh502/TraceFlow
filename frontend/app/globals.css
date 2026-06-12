@@ -1,0 +1,42 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: dark;
+}
+
+html,
+body {
+  height: 100%;
+}
+
+body {
+  @apply bg-surface text-slate-100 antialiased;
+}
+
+/* Highlight for the line currently executing in the trace. */
+.traceflow-active-line {
+  background: rgba(245, 158, 11, 0.16);
+}
+.traceflow-active-glyph {
+  background: #f59e0b;
+  width: 4px !important;
+  margin-left: 3px;
+}
+
+/* Thin custom scrollbars to match the dark UI. */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: #1f2937;
+  border-radius: 9999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #374151;
+}
