@@ -36,3 +36,23 @@ class TraceResponse(BaseModel):
     stepCount: int = 0
     error: str | None = None
     stage: str | None = None
+
+
+class ExplainRequest(BaseModel):
+    """Ask for a natural-language explanation of one trace step.
+
+    ``step``/``prevStep`` are raw trace Step objects (as returned by /api/trace).
+    Set ``question`` for grounded Q&A about the current state instead of a
+    generic step explanation.
+    """
+
+    code: str = Field(..., min_length=1)
+    step: dict[str, Any]
+    prevStep: dict[str, Any] | None = None
+    question: str | None = Field(default=None, max_length=500)
+
+
+class ExplainResponse(BaseModel):
+    explanation: str
+    provider: str
+    warning: str | None = None

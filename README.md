@@ -139,7 +139,40 @@ Compile/runtime problem (still HTTP 200 — it's the user's code, not a server e
 A `Value` is either `{"kind":"prim","type":...,"value":...}` or
 `{"kind":"ref","id":<n>}` pointing into `heap`. Full shapes: `frontend/lib/types.ts`.
 
+### `POST /api/explain`
+
+Plain-English explanation of a step, grounded in the real trace state — the
+differentiating AI layer.
+
+Request: `{ "code": "...", "step": <Step>, "prevStep": <Step|null>, "question": "optional" }`
+Response: `{ "explanation": "...", "provider": "gemini" }`
+
+With a question set, it does grounded Q&A about the current step instead.
+
 ### `GET /health` → `{ "status": "ok" }`
+
+---
+
+## AI explanations (free)
+
+TraceFlow can explain each step in natural language ("now we check if the
+complement exists — the O(1) lookup that makes Two Sum O(n)") and answer
+questions about the current state. It is **pluggable and free-tier friendly**:
+
+| Provider | Get a free key | Env var |
+| -------- | -------------- | ------- |
+| Google Gemini | https://aistudio.google.com/apikey | `GEMINI_API_KEY` |
+| Groq | https://console.groq.com/keys | `GROQ_API_KEY` |
+| Rule-based | _none needed_ | (automatic fallback) |
+
+Set a key in `backend/.env` (see `.env.example`) and restart — explanations
+upgrade automatically. With **no** key, a deterministic rule-based explainer
+describes what changed each step, so the feature still works at zero setup. The
+cloud call uses only the Python standard library (no extra dependency), and any
+provider error degrades gracefully to the rule-based output.
+
+> The model is sent the *real* debugger state (values are ground truth), which
+> keeps explanations grounded rather than hallucinated.
 
 ---
 

@@ -1,6 +1,6 @@
 /** Thin client for the TraceFlow backend. */
 
-import type { TraceResponse } from "./types";
+import type { ExplainResponse, Step, TraceResponse } from "./types";
 
 const API_BASE =
   process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost:8000";
@@ -43,4 +43,27 @@ export async function trace(
   }
 
   return (await res.json()) as TraceResponse;
+}
+
+/** Ask the backend to explain a trace step, or answer a question about it. */
+export async function explain(
+  code: string,
+  step: Step,
+  prevStep: Step | null,
+  question?: string,
+): Promise<ExplainResponse> {
+  let res: Response;
+  try {
+    res = await fetch(`${API_BASE}/api/explain`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ code, step, prevStep, question: question ?? null }),
+    });
+  } catch {
+    throw new ApiError(`Could not reach the TraceFlow backend at ${API_BASE}.`, 0);
+  }
+  if (!res.ok) {
+    throw new ApiError(`Explain request failed (${res.status}).`, res.status);
+  }
+  return (await res.json()) as ExplainResponse;
 }

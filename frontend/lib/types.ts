@@ -94,3 +94,9 @@ export interface PrimObject {
 export function isRef(v: Value): v is RefValue {
   return v.kind === "ref";
 }
+
+export interface ExplainResponse {
+  explanation: string;
+  provider: string;
+  warning?: string | null;
+}

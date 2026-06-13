@@ -61,6 +61,7 @@ export default function Home() {
 
         <section className="min-h-0">
           <ExecutionView
+            code={code}
             result={result}
             index={playback.index}
             error={error}

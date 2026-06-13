@@ -15,9 +15,14 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 
-from app.core import tracer_runner
+from app.core import explainer, tracer_runner
 from app.core.tracer_runner import TracerError
-from app.models.schemas import TraceRequest, TraceResponse
+from app.models.schemas import (
+    ExplainRequest,
+    ExplainResponse,
+    TraceRequest,
+    TraceResponse,
+)
 
 
 @asynccontextmanager
@@ -76,3 +81,17 @@ def trace(req: TraceRequest) -> TraceResponse:
         # Toolchain / infrastructure failure (not the user's fault).
         raise HTTPException(status_code=503, detail=str(exc)) from exc
     return TraceResponse(**result)
+
+
+@app.post("/api/explain", response_model=ExplainResponse, tags=["explain"])
+def explain(req: ExplainRequest) -> ExplainResponse:
+    """Explain the current trace step (or answer a question about it) in English.
+
+    Uses a free-tier cloud LLM when a key is configured, otherwise a deterministic
+    rule-based fallback. Never fails on provider errors — it degrades to the
+    fallback so the UI always gets a response.
+    """
+    result = explainer.explain(
+        code=req.code, step=req.step, prev=req.prevStep, question=req.question
+    )
+    return ExplainResponse(**result)
