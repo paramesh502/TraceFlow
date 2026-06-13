@@ -222,20 +222,16 @@ Frontend and backend deploy independently.
 2. Set `NEXT_PUBLIC_API_BASE_URL` to your deployed backend URL.
 3. Deploy (Next.js auto-detected).
 
-### Backend → any host with a JDK (Render / Railway / Fly.io / a container)
+### Backend → any host with a JDK (Hugging Face Spaces / Render / Cloud Run / …)
 The backend runs user Java, so the runtime image **must include a JDK** (not just
-a JRE — `javac` and `jdk.jdi` are required). The simplest path is a container:
+a JRE — `javac` and `jdk.jdi` are required). A ready container lives at
+[`backend/Dockerfile`](backend/Dockerfile) (pre-compiles the tracer; honors
+`$PORT`, defaults to 7860 for HF Spaces).
 
-```dockerfile
-FROM eclipse-temurin:21-jdk
-RUN apt-get update && apt-get install -y python3 python3-venv python3-pip
-WORKDIR /app/backend
-COPY backend/ .
-RUN python3 -m venv .venv && .venv/bin/pip install -r requirements.txt
-CMD [".venv/bin/uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
-```
+**Free, no-card path (Vercel + Hugging Face Spaces): see
+[`deploy/DEPLOY.md`](deploy/DEPLOY.md)** for step-by-step instructions.
 
-Set `TRACEFLOW_CORS_ORIGINS` to your deployed frontend URL.
+Set `TRACEFLOW_CORS_ORIGINS` to your deployed frontend URL on whichever host you use.
 
 > **Security note:** the backend executes arbitrary user Java. The tracer bounds
 > steps and wall-clock time, but for a public deployment you should additionally
