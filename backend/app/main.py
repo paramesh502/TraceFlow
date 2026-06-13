@@ -16,7 +16,11 @@ from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.core import explainer, tracer_runner
+from app.core.env import load_env
 from app.core.tracer_runner import TracerError
+
+# Load backend/.env (API keys, CORS) before anything reads the environment.
+load_env()
 from app.models.schemas import (
     ExplainRequest,
     ExplainResponse,
