@@ -104,7 +104,8 @@ function Body({ result, index, error, isLoading }: ExecutionViewProps) {
   }
 
   const step = result.steps[index];
-  return <CallStackView frames={step.frames} heap={step.heap} />;
+  const prevStep = index > 0 ? result.steps[index - 1] : null;
+  return <CallStackView step={step} prevStep={prevStep} />;
 }
 
 function OutputPanel({ text, truncated }: { text: string; truncated: boolean }) {

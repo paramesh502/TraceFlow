@@ -4,13 +4,47 @@ import { useState } from "react";
 import { ApiError, explain } from "@/lib/api";
 import type { ExplainResponse, Step } from "@/lib/types";
 
+// AI is gated off by default so a public deploy doesn't burn your free LLM quota.
+// Enable it by setting NEXT_PUBLIC_AI_ENABLED=true in the frontend environment.
+const AI_ENABLED = process.env.NEXT_PUBLIC_AI_ENABLED === "true";
+
 /**
- * "Explain this step" panel — the AI layer. Requests a plain-English explanation
- * of the current step grounded in the real trace state, and supports follow-up
- * questions about it. Remounted per step (via a `key` on the index) so it starts
- * fresh as the user navigates.
+ * "Explain this step" panel — the AI layer. When enabled, it requests a
+ * plain-English explanation of the current step grounded in the real trace
+ * state and supports follow-up questions. When disabled it shows a "coming
+ * soon" teaser. Remounted per step (via a `key` on the index) so it starts fresh.
  */
 export function ExplainPanel({
+  code,
+  step,
+  prevStep,
+}: {
+  code: string;
+  step: Step;
+  prevStep: Step | null;
+}) {
+  if (!AI_ENABLED) return <ComingSoon />;
+  return <ExplainPanelLive code={code} step={step} prevStep={prevStep} />;
+}
+
+function ComingSoon() {
+  return (
+    <div className="rounded-lg border border-accent/30 bg-accent-soft/5 p-3">
+      <div className="flex items-center justify-between">
+        <span className="text-xs font-semibold text-accent-hover">✨ AI explanation &amp; Q&amp;A</span>
+        <span className="rounded-full border border-accent/40 px-2 py-0.5 text-[10px] text-accent-hover">
+          Coming soon
+        </span>
+      </div>
+      <p className="mt-1.5 text-xs text-slate-400">
+        Step-by-step explanations and questions about your code — grounded in the real
+        execution state. Launching soon.
+      </p>
+    </div>
+  );
+}
+
+function ExplainPanelLive({
   code,
   step,
   prevStep,
@@ -41,9 +75,7 @@ export function ExplainPanel({
     <div className="rounded-lg border border-accent/30 bg-accent-soft/5 p-3">
       <div className="mb-2 flex items-center justify-between">
         <span className="text-xs font-semibold text-accent-hover">✨ AI explanation</span>
-        {result && (
-          <span className="text-[10px] text-slate-500">via {result.provider}</span>
-        )}
+        {result && <span className="text-[10px] text-slate-500">via {result.provider}</span>}
       </div>
 
       {!result && !loading && (
@@ -56,7 +88,6 @@ export function ExplainPanel({
       )}
 
       {loading && <p className="animate-pulse text-xs text-slate-400">Thinking…</p>}
-
       {error && <p className="text-xs text-active">{error}</p>}
 
       {result && (
