@@ -8,8 +8,10 @@ RUN apt-get update \
     && apt-get install -y --no-install-recommends python3 python3-venv \
     && rm -rf /var/lib/apt/lists/*
 
-# Run as a non-root user (Hugging Face Spaces convention; uid 1000).
-RUN useradd -m -u 1000 user
+# Run as a non-root user with uid 1000 (Hugging Face Spaces convention). The
+# Ubuntu-based JDK image already ships a uid-1000 user, so drop it first.
+RUN if id -u 1000 >/dev/null 2>&1; then userdel -r "$(id -nu 1000)" 2>/dev/null || true; fi \
+    && useradd -m -u 1000 user
 USER user
 ENV HOME=/home/user
 WORKDIR /home/user/app
