@@ -1,5 +1,7 @@
 # TraceFlow
 
+**▶ Live demo: https://trace-flow-olive.vercel.app**
+
 **Understand any algorithm by watching it run.** TraceFlow executes Java code and
 visualizes the *entire program state* — call stack, every variable, and every
 data structure (arrays, HashMaps, linked lists, trees, recursion) — one line at
