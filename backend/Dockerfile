@@ -27,7 +27,8 @@ COPY --chown=user:user . ./
 
 # Pre-compile the JDI tracer so the first request isn't slow and no write to the
 # image is needed at runtime.
-RUN javac --add-modules jdk.jdi -d tracer/build tracer/src/com/traceflow/*.java
+RUN mkdir -p tracer/build \
+    && javac --add-modules jdk.jdi -d tracer/build tracer/src/com/traceflow/*.java
 
 EXPOSE 7860
 # Shell form so ${PORT} expands at runtime.
